@@ -11,27 +11,16 @@
 
       var clock = new THREE.Clock();
 
-      function fillScene() {
+      function fillScene()
+      {
         scene = new THREE.Scene();
 
         var geometry = new THREE.Geometry();
 
-        // Student: rewrite the following vertex generation code so that
-        // vertices are generated every 100 units:
-        // -1000,-1000,-1000 to 1000,1000,1000, e.g.
-        // at -1000,-1000,-1000, -900,-1000,-1000,
-        // and so on, for the 21*21*21 = 9261 points.
-
         for(var i = 0; i < 21; i ++)
-        {
           for(var j = 0; j < 21; j ++)
-          {
             for(var k = 0; k < 21; k ++)
-            {
               geometry.vertices.push(new THREE.Vector3(-1000+(i*100), -1000+(j*100), -1000+(k*100))); 
-            }
-          }
-        }
           
         /*for ( var i = 0; i < 8000; i ++ ) {
 
@@ -48,59 +37,64 @@
         }*/
 
         var disk = THREE.ImageUtils.loadTexture('disc.png');
-        var material = new THREE.ParticleBasicMaterial(
-          { size: 35, sizeAttenuation: false, map: disk, transparent: true } );
-        material.color.setHSL( 0.9, 0.2, 0.6 );
+        var material = new THREE.ParticleBasicMaterial({ size: 50, sizeAttenuation: false, map: disk, transparent: true });
+        material.color.setHSL(0.9, 0.2, 0.6);
 
-        var particles = new THREE.ParticleSystem( geometry, material );
+        var particles = new THREE.ParticleSystem(geometry, material);
         particles.sortParticles = true;
-        scene.add( particles );
+        scene.add(particles);
       }
 
-      function init() {
-        // For grading the window is fixed in size; here's general code:
+      function init() 
+      {
         var canvasWidth = window.innerWidth;
         var canvasHeight = window.innerHeight;
         var canvasRatio = canvasWidth / canvasHeight;
 
         // RENDERER
-        renderer = new THREE.WebGLRenderer( { antialias: true } );
-        renderer = new THREE.WebGLRenderer( { clearAlpha: 1 } );
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({ clearAlpha: 1 });
         renderer.gammaInput = true;
         renderer.gammaOutput = true;
         renderer.setSize(canvasWidth, canvasHeight);
-        renderer.setClearColorHex( 0xAAAAAA, 1.0 );
+        renderer.setClearColorHex(0xAAAAAA, 1.0);
 
         // CAMERA
-        camera = new THREE.PerspectiveCamera( 55, canvasRatio, 2, 8000 );
-        camera.position.set( 10, 5, 4000 );
+        camera = new THREE.PerspectiveCamera(55, canvasRatio, 2, 8000);
+        camera.position.set(10, 5, 4000);
         // CONTROLS
         cameraControls = new THREE.OrbitAndPanControls(camera, renderer.domElement);
         cameraControls.target.set(0,0,0);
 
       }
 
-      function addToDOM() {  
-	document.body.appendChild(renderer.domElement);
+      function addToDOM() 
+      {  
+        document.body.appendChild(renderer.domElement);
       }
 
-      function animate() {
+      function animate() 
+      {
         window.requestAnimationFrame(animate);
         render();
       }
 
-      function render() {
+      function render()
+      {
         var delta = clock.getDelta();
         cameraControls.update(delta);
         renderer.render(scene, camera);
       }
 
-      try {
+      try 
+      {
         init();
         fillScene();
         addToDOM();
         animate();
-      } catch(e) {
+      } 
+      catch(e)
+      {
         var errorReport = "Your program encountered an unrecoverable error, can not draw on canvas. Error was:<br/><br/>";
         $('#container').append(errorReport+e);
       }
