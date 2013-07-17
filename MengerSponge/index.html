@@ -11,24 +11,88 @@
 
       var clock = new THREE.Clock();
 
+      var CUBE_SIZE = 1000;
+      var iteration = 0;
+      var obj;
+
       function fillScene()
       {
         scene = new THREE.Scene();
 
-        var geometry = new THREE.CubeGeometry(100,100,100);
+        var geometry = new THREE.CubeGeometry(CUBE_SIZE,CUBE_SIZE,CUBE_SIZE);
 
         var material = new THREE.MeshLambertMaterial({color: 0x0000FF});
        
         cube = new THREE.Mesh(geometry, material);
         cube.overdraw = true;
-        scene.add(cube);
+        //scene.add(cube);
 
+        var totalCubes = [];
+        obj = new THREE.Object3D();
+
+        iteration ++;        
+        var cubes = doIteration(cube, scene);
+        iteration ++;
+        
+        cubes.forEach(function(cube2)
+        {
+          doIteration(cube2, scene).forEach(function(cube3)
+          {
+            obj.add(cube3);
+          });
+        });
+
+        scene.add(obj);
         var ambLight = new THREE.AmbientLight(0x000044);
         scene.add(ambLight);
 
         var directionalLight = new THREE.DirectionalLight(0xffffff);
         directionalLight.position.set(1, 1, 1).normalize();
         scene.add(directionalLight);
+      }
+
+      function doIteration(cube, scene)
+      {
+        var numCubesInRow = Math.pow(3,iteration);
+
+        var cubes = [];
+
+        var currentCubeSize = (CUBE_SIZE/(numCubesInRow));
+        var mySize = currentCubeSize/3;
+
+        for(var i = 0; i < 3; i ++)
+        {
+          for(var j = 0; j < 3; j ++)
+          {
+            for(var k = 0; k < 3; k ++)
+            {
+              if(i == 1 && j == 1 || j == 1 && k == 1 || i == 1 && k == 1)
+              {
+                continue;
+              }
+               
+              var posX = cube.position.x;
+              var posY = cube.position.y;
+              var posZ = cube.position.z;
+
+              var midX = posX - currentCubeSize/2 + (mySize)/2 + i*(mySize);
+              var midY = posY - currentCubeSize/2 + (mySize)/2 + j*(mySize);
+              var midZ = posZ + currentCubeSize/2 - (mySize)/2 - k*(mySize);
+
+        
+              var geometry = new THREE.CubeGeometry(mySize, mySize, mySize);      
+
+              var material = new THREE.MeshLambertMaterial({color: '#'+Math.floor(Math.random()*16777215).toString(16)});
+             
+              var cube2 = new THREE.Mesh(geometry, material);
+              
+              cube2.position.set(midX, midY, midZ);
+
+              cubes.push(cube2);
+            }
+          }        
+        } 
+        return cubes;
       }
 
       function init() 
@@ -44,11 +108,10 @@
         renderer.setClearColorHex(0xAAAAAA, 1.0);
 
         camera = new THREE.PerspectiveCamera(55, canvasRatio, 2, 9000);
-        camera.position.set(10, 5, 400);
+        camera.position.set(10, 5, 600);
       
         cameraControls = new THREE.OrbitAndPanControls(camera, renderer.domElement);
         cameraControls.target.set(0,0,0);
-
       }
 
       function addToDOM() 
@@ -66,8 +129,8 @@
       {
         var delta = clock.getDelta();
 
-        cube.rotation.y += 0.02;
-        cube.rotation.x += 0.01;
+       obj.rotation.y += 0.02;
+       obj.rotation.x += 0.01;
         
         cameraControls.update(delta);
         renderer.render(scene, camera);
